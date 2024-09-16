@@ -7,7 +7,7 @@ export async function createGoal({
   title,
   desiredWeeklyFrequency,
 }: CreateGoalRequest) {
-  await fetch("http://localhost:3333/goals", {
+  await fetch("https://in-orbit-backend-7lky.onrender.com/goals", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
