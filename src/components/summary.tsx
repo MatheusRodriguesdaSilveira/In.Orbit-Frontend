@@ -6,11 +6,15 @@ import { Progress, ProgressIndicator } from "./ui/progress-bar";
 import { Separator } from "./ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import { getSummary } from "../http/get-summary";
-import dayjs from "dayjs";
-import ptBR from "dayjs/locale/pt-br";
 import { PendingGoals } from "./pending-goals";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import "dayjs/locale/pt-br";
 
-dayjs.locale(ptBR);
+dayjs.locale("pt-br");
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const Summary = () => {
   const { data } = useQuery({
@@ -22,9 +26,14 @@ export const Summary = () => {
   if (!data) {
     return null;
   }
-
-  const firstDayOfWeek = dayjs().startOf("week").format("D ");
-  const lastDayOfWeek = dayjs().endOf("week").format("D[ de ]MMMM");
+  const firstDayOfWeek = dayjs()
+    .tz("America/Sao_Paulo")
+    .startOf("week")
+    .format("D ");
+  const lastDayOfWeek = dayjs()
+    .tz("America/Sao_Paulo")
+    .endOf("week")
+    .format("D[ de ]MMMM");
 
   const completedPercent = Math.round((data.completed * 100) / data.total);
 
@@ -72,19 +81,22 @@ export const Summary = () => {
           <h2 className="text-xl font-medium">Sua semana</h2>
 
           {Object.entries(data.goalsPerDay).map(([date, goals]) => {
-            const weekDay = dayjs(date).format("dddd");
-            const formatDate = dayjs(date).format("D[ de ]MMMM");
+            const weekDay = dayjs(date).tz("America/Sao_Paulo").format("dddd");
+            const formatDate = dayjs(date)
+              .tz("America/Sao_Paulo")
+              .format("D[ de ]MMMM");
 
             return (
               <div key={date} className="flex flex-col gap-4">
                 <h3 className="font-medium">
                   <span className="capitalize">{weekDay} </span>
-
                   <span className="text-xs text-zinc-400">{formatDate}</span>
                 </h3>
                 <ul className="flex flex-col gap-3">
                   {goals.map((goal) => {
-                    const hourGoal = dayjs(goal.completedAt).format("HH:mm");
+                    const hourGoal = dayjs(goal.completedAt)
+                      .tz("America/Sao_Paulo")
+                      .format("HH:mm");
                     return (
                       <li key={goal.id} className="flex items-center gap-2">
                         <CheckCircle2 className="size-5 text-pink-500" />
