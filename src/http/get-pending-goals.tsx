@@ -6,10 +6,16 @@ type PendingGoalsResponse = {
 }[];
 
 export async function getPendingGoals(): Promise<PendingGoalsResponse> {
-  const response = await fetch(
-    "https://in-orbit-backend-7lky.onrender.com/pending-goals"
-  );
-  const data = await response.json();
+  try {
+    const response = await fetch(
+      "https://in-orbit-backend-7lky.onrender.com/pending-goals"
+    );
+    if (!response.ok) throw new Error("Failed to fetch pending goals");
 
-  return data.pendingGoals;
+    const data = await response.json();
+    return data.pendingGoals; // Retorna apenas o array de metas pendentes
+  } catch (error) {
+    console.error("Error fetching pending goals:", error);
+    return []; // Retorna vazio em caso de falha
+  }
 }

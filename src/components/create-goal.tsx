@@ -18,6 +18,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createGoal } from "../http/create-goals";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const createGoalForm = z.object({
   title: z.string().min(1, "Informe a atividade que deseja realizar"),
@@ -35,15 +36,16 @@ export function CreateGoal() {
     });
 
   async function handleCreateGoal(data: CreateGoalForm) {
-    await createGoal({
-      title: data.title,
-      desiredWeeklyFrequency: data.desiredWeeklyFrequency,
-    });
-
-    queryClient.invalidateQueries({ queryKey: ["summary"] });
-    queryClient.invalidateQueries({ queryKey: ["pending-goals"] });
-
-    reset();
+    try {
+      await createGoal(data);
+      queryClient.invalidateQueries({ queryKey: ["pending-goals"] });
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
+      toast.success("Meta criada com sucesso!"); // Mensagem de sucesso
+      reset();
+    } catch (error) {
+      console.error("Erro ao criar a meta:", error);
+      toast.error("Erro ao criar a meta."); // Mensagem de erro
+    }
   }
 
   return (
